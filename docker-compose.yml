@@ -1,0 +1,37 @@
+version: "2"
+
+services:
+  web:
+    image: amrbz/cra
+    volumes:
+      - ./web:/opt/web
+    ports:
+      - 9100:3000
+    depends_on:
+      - server
+    restart: unless-stopped
+    command: bash -c "npm run build:dll && npm start"
+    
+  app:
+    image: amrbz/cra
+    volumes:
+      - ./app:/opt/web
+    ports:
+      - 9110:3000
+    depends_on:
+      - server
+    restart: unless-stopped
+    command: bash -c "npm run build:dll && npm start"
+
+  crate:
+    image: crate
+    ports:
+      - 4210:4200
+      - 4310:4300
+    environment:
+      CRATE_HEAP_SIZE: 1g
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    volumes:
+      - /mnt/data/crate/prodobro:/data
+    command: crate -Cnetwork.host=_site_
+    restart: unless-stopped
